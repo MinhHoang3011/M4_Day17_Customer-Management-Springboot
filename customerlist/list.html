@@ -6,19 +6,24 @@
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
+<input type="hidden" id="id">
 <input id = "firstName" placeholder="firstName">
 <input id = "lastName" placeholder="lastName">
 <button onclick="create()" >Create Customer</button>
+<button onclick="editCustomer()">Update Customer</button>
+<form >
+  <input type="text" id="search" name="search" placeholder="search">
+  <input type="submit" value="Search" onclick="searchCustomer()">
+</form>
 <!--<a href="/create-customer">Create new customer</a>-->
 <h1>Customers</h1>
-<table border="1">
+<table border="1" >
   <tr>
     <th>Id</th>
     <th>First name</th>
     <th>Last name</th>
   </tr>
-
-  <tbody id = "tbody">
+  <tbody id = "customers" >
   <td>3</td>
   <td>batran</td>
   <td>100con</td>
@@ -34,6 +39,12 @@
 <!--    </tr>-->
 <!--  </th:block>-->
   <script type="text/javascript">
+    function getCustomer(customer) {
+      return `<tr><td >${customer.name}</td><td >${customer.age}</td>
+                <td><a href="${customer.id}" onclick="showFormUpdate(this)">Edit</a></td>
+                <td><a href="${customer.id}" onclick="deleteCustomer(this)">Delete</a></td>
+                </tr>`
+    }
     function showAllCustomer() {
       //1. lay du lieu tu phia backend
       $.ajax({
@@ -49,7 +60,8 @@
             content+=`<tr><td>${data[i].id}</td>
         <td>${data[i].firstName}</td>
         <td>${data[i].lastName}</td>
-        <td><a href="${data[i].id}" onclick="deleteCustomer(this)">Xoa</a></td></tr>`;
+        <td><a href="${data[i].id}" onclick="deleteCustomer(this)">Xoa</a></td>
+        <td><a href="${data[i].id}" onclick="showFormEdit(this)">Edit</a></td></tr>`;
           }
           document.getElementById("tbody").innerHTML = content;
         }
@@ -76,7 +88,7 @@
         data: JSON.stringify(ob),
         url: "http://localhost:8080/api/customers",
         success: function () {
-          showAllClass();
+          showAllCustomer();
         }
       })
     }
@@ -89,6 +101,79 @@
           showAllCustomer();
         }
       })
+      event.preventDefault();
+    }
+    function editCustomer() {
+      let id = $('#id').val();
+      let firstName= $('#firstName').val();
+      let lastName=$('#lastName').val();
+      let customer={
+        firstName:firstName,
+        lastName:lastName
+      }
+      $.ajax({
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        type: "PUT",
+        url: `http://localhost:8080/api/customers/${id}`,
+        data:JSON.stringify(customer),
+        success: function (data) {
+          console.log(id);
+          showAllCustomer();
+        }
+      })
+      event.preventDefault();
+    }
+    function showFormEdit(element){
+      let id = element.getAttribute("href");
+      console.log(id);
+      $.ajax({
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        type: "GET",
+        url: `http://localhost:8080/api/customers/${id}`,
+        success: function (data) {
+          console.log(data);
+          console.log(id);
+          $('#id').attr('value',`${data.id}`)
+          $('#firstName').attr('value',`${data.firstName}`)
+          $('#lastName').attr('value',`${data.lastName}`)
+        }
+      })
+
+      event.preventDefault();
+
+
+    }
+
+    function searchCustomer(){
+      let search1= $('#search').val();
+      console.log(search1)
+      $.ajax({
+        headers:{
+          'Accept':'application/json',
+          'Content-Type': 'application/json'
+        },
+        type:"GET",
+        url: "http://localhost:8080/api/customers/search?search="+search1,
+        success:function (data){
+          console.log(data)
+          let str="";
+          for (let i = 0; i < data.content.length; i++) {
+          str +=`<tr><td>${data.content[i].id}</td>
+        <td>${data.content[i].firstName}</td>
+        <td>${data.content[i].lastName}</td>
+        <td><a href="${data.content[i].id}" onclick="deleteCustomer(this)">Xoa</a></td>
+        <td><a href="${data.content[i].id}" onclick="showFormEdit(this)">Edit</a></td></tr>`;
+          }
+          document.getElementById('customers').innerHTML = str;
+        }
+      })
+
       event.preventDefault();
     }
   </script>
