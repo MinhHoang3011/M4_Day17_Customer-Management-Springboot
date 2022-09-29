@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+<input id = "firstName" placeholder="firstName">
+<input id = "lastName" placeholder="lastName">
+<button onclick="create()" >Create Customer</button>
+<!--<a href="/create-customer">Create new customer</a>-->
+<h1>Customers</h1>
+<table border="1">
+  <tr>
+    <th>Id</th>
+    <th>First name</th>
+    <th>Last name</th>
+  </tr>
+
+  <tbody id = "tbody">
+  <td>3</td>
+  <td>batran</td>
+  <td>100con</td>
+  <td><a></a></td>
+  </tbody>
+</table>
+<!--  <th:block th:each="custome : ${customer}">-->
+<!--    <tr>-->
+<!--      <td th:text="${custome.firstName}"></td>-->
+<!--      <td th:text="${custome.lastName}"></td>-->
+<!--      <td><a th:href="@{/edit-customer/__${customer.id}__ }">Edit</a></td>-->
+<!--      <td><a th:href="@{/delete-customer/__${customer.id}__ }">Delete</a></td>-->
+<!--    </tr>-->
+<!--  </th:block>-->
+  <script type="text/javascript">
+    function showAllCustomer() {
+      //1. lay du lieu tu phia backend
+      $.ajax({
+        //loai cua request: GET, POST, PUT, ....
+        type: "GET",
+        //duong dan cua API
+        url: "http://localhost:8080/api/customers",
+        //xu ly luc thanh cong
+        success: function (data) {
+          //2. ve lai cai bang
+          let content ="";
+          for (let i = 0; i < data.length; i++) {
+            content+=`<tr><td>${data[i].id}</td>
+        <td>${data[i].firstName}</td>
+        <td>${data[i].lastName}</td>
+        <td><a href="${data[i].id}" onclick="deleteCustomer(this)">Xoa</a></td></tr>`;
+          }
+          document.getElementById("tbody").innerHTML = content;
+        }
+      })
+    }
+    showAllCustomer();
+
+    function create() {
+      //lay ten
+      let firstName = document.getElementById("firstName").value;
+      let lastName = document.getElementById("lastName").value;
+      //chuyen sang doi tuong
+      let ob = {
+        firstName: firstName,
+        lastName: lastName
+      }
+
+      $.ajax({
+        headers:{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        type: "POST",
+        data: JSON.stringify(ob),
+        url: "http://localhost:8080/api/customers",
+        success: function () {
+          showAllClass();
+        }
+      })
+    }
+    function deleteCustomer(element){
+      let id = element.getAttribute("href");
+      $.ajax({
+        type:"DELETE",
+        url:"http://localhost:8080/api/customers/" +id,
+        success: function (data){
+          showAllCustomer();
+        }
+      })
+      event.preventDefault();
+    }
+  </script>
+</body>
+</html>

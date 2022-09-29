@@ -20,6 +20,31 @@
       <td><a th:href="@{/delete-customer/__${customer.id}__ }">Delete</a></td>
     </tr>
   </th:block>
-</table>
+  <script type="text/javascript">
+    function showAllCustomer() {
+      //1. lay du lieu tu phia backend
+      $.ajax({
+        //loai cua request: GET, POST, PUT, ....
+        type: "GET",
+        //duong dan cua API
+        url: "http://localhost:8080/api/customers",
+        //xu ly luc thanh cong
+        success: function (data) {
+          //2. ve lai cai bang
+          let content ="";
+          for (let i = 0; i < data.length; i++) {
+            content+=`<tr><td>${data[i].id}</td>
+        <td>${data[i].firstName}</td>
+        <td>${data[i].lastName}</td>
+        <td><a href="${data[i].id}" onclick="deleteCustomer(this)">Xoa</a></td></tr>`;
+          }
+          document.getElementById("tbody").innerHTML = content;
+        }
+      })
+    }
+    showAllCustomer();
+  </script>
+
+    </table>
 </body>
 </html>

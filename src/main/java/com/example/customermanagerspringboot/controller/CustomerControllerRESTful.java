@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/customers")
+@CrossOrigin("*")
 public class CustomerControllerRESTful {
     @Autowired
     private ICustomerService customerService;
